@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyShop | ホーム</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold text-indigo-600">MyShop</h1>
+      <nav class="space-x-4 text-sm">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">ホーム</a>
+        <a href="/order.html" class="text-gray-600 hover:text-indigo-600">カート</a>
+      </nav>
+    </div>
+  </header>
+  <main class="flex-1 container mx-auto p-4">
+    <h2 class="text-xl font-semibold mb-6">おすすめ商品</h2>
+    <div id="product-grid" class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+  </main>
+  <footer class="text-center text-xs text-gray-500 py-4">&copy; 2025 MyShop</footer>
+  <script>
+    const products = [
+      { code: 'A001', name: '無添加石鹸', price: 300, img: 'https://via.placeholder.com/300x300?text=A001' },
+      { code: 'A002', name: 'しっとり化粧水', price: 1200, img: 'https://via.placeholder.com/300x300?text=A002' },
+      { code: 'A003', name: 'オーガニックシャンプー', price: 890, img: 'https://via.placeholder.com/300x300?text=A003' },
+      { code: 'A004', name: 'ハンドクリーム', price: 650, img: 'https://via.placeholder.com/300x300?text=A004' },
+    ];
+    const grid = document.getElementById('product-grid');
+    products.forEach(p => {
+      const link = \`/order.html?code=\${encodeURIComponent(p.code)}&name=\${encodeURIComponent(p.name)}&price=\${p.price}&img=\${encodeURIComponent(p.img)}\`;
+      const card = document.createElement('a');
+      card.href = link;
+      card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md transition block';
+      card.innerHTML = \`
+        <img src="\${p.img}" alt="\${p.name}" class="w-full h-48 object-cover rounded-t-xl" />
+        <div class="p-4">
+          <p class="font-medium text-gray-800">\${p.name}</p>
+          <p class="text-indigo-600 mt-1 font-semibold">¥\${p.price.toLocaleString()}</p>
+        </div>\`;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
