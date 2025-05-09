@@ -6,43 +6,65 @@
   <title>ご注文 | MyShop</title>
   <script src="https://js.stripe.com/v3/"></script>
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;margin:2rem;}
-    .btn{padding:0.6rem 1.2rem;background:#4f46e5;color:#fff;border:none;border-radius:4px;font-size:1rem;cursor:pointer}
+    body{font-family:sans-serif;margin:2rem;max-width:480px}
+    .row{margin-bottom:8px}
+    .btn{padding:.6rem 1.2rem;background:#4f46e5;color:#fff;border:none;border-radius:6px;font-size:1rem;width:100%;cursor:pointer}
+    input{width:100%;padding:6px;border:1px solid #ccc;border-radius:4px}
   </style>
 </head>
 <body>
-  <h1>商品注文</h1>
-  <p>商品名: <span id="product_name"></span></p>
-  <p>価格: <span id="product_price"></span> 円</p>
-  <button id="checkout-button" class="btn">支払いへ進む</button>
+  <h2>商品情報</h2>
+  <p>商品名: <span id="prodName"></span></p>
+  <p>価格: <span id="prodPrice"></span> 円</p>
 
-  <script>
-    const params = new URLSearchParams(location.search);
-    const name = params.get("product_name") || "サンプル商品";
-    const price = params.get("product_price") || "1000";
+  <h2>お届け先</h2>
+  <div class="row"><input id="zip"    placeholder="郵便番号" /></div>
+  <div class="row"><input id="name"   placeholder="お名前" /></div>
+  <div class="row"><input id="pref"   placeholder="都道府県" /></div>
+  <div class="row"><input id="city"   placeholder="市区町村" /></div>
+  <div class="row"><input id="addr1"  placeholder="番地等" /></div>
+  <div class="row"><input id="addr2"  placeholder="建物名・部屋番号 (任意)" /></div>
+  <div class="row"><input id="email"  placeholder="メールアドレス" /></div>
 
-    document.getElementById("product_name").textContent = name;
-    document.getElementById("product_price").textContent = Number(price).toLocaleString();
+  <button id="checkoutBtn" class="btn">支払いへ進む</button>
 
-    const CHECKOUT_ENDPOINT = "https://plusone-api.08e2207.workers.dev";
-    const STRIPE_PK = "pk_test_51RFssADGl3CKnBpN9WGFZX1W9w0IFVwOfQkQKMYLRwMUrLMofvU1zahJnI7JnS4Dd4JeI74EmbFarQMizygnBDBj00Mux368ty";
+<script>
+const CHECKOUT_ENDPOINT = "https://plusone-api.08e2207.workers.dev";
+const SUBMIT_ENDPOINT   = "https://plusone-api.08e2207.workers.dev/submit";
+const STRIPE_PK         = "pk_test_51RFssADGl3CKnBpN9WGFZX1W9w0IFVwOfQkQKMYLRwMUrLMofvU1zahJnI7JnS4Dd4JeI74EmbFarQMizygnBDBj00Mux368ty";
 
-    document.getElementById("checkout-button").addEventListener("click", async () => {
-      const res = await fetch(CHECKOUT_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_name: name, product_price: price })
-      });
+const q  = new URLSearchParams(location.search);
+const product_name  = q.get("product_name")  || "テスト商品";
+const product_price = q.get("product_price") || "1000";
+const product_id    = q.get("product_id")    || "";
 
-      if(!res.ok){
-        alert("決済セッションの作成に失敗しました");
-        return;
-      }
+document.getElementById("prodName").textContent  = product_name;
+document.getElementById("prodPrice").textContent = Number(product_price).toLocaleString();
 
-      const { sessionId } = await res.json();
-      const stripe = Stripe(STRIPE_PK);
-      stripe.redirectToCheckout({ sessionId });
-    });
-  </script>
+document.getElementById("checkoutBtn").addEventListener("click", async () => {
+  const sesRes = await fetch(CHECKOUT_ENDPOINT, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ product_name, product_price })
+  });
+  if(!sesRes.ok){ alert("決済セッションの作成に失敗しました"); return; }
+  const { sessionId } = await sesRes.json();
+
+  await fetch(SUBMIT_ENDPOINT, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      zip: val("zip"),  name: val("name"),  order_id: sessionId,
+      pref: val("pref"), city: val("city"), address: val("addr1"), building: val("addr2"),
+      product_name, quantity: 1, product_id, amount: product_price,
+      email: val("email"), note: ""
+    })
+  });
+
+  Stripe(STRIPE_PK).redirectToCheckout({ sessionId });
+});
+
+const val = id => document.getElementById(id).value.trim();
+</script>
 </body>
 </html>
