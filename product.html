@@ -1,13 +1,31 @@
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>商品ページ</title>
+<style>
+body{font-family:sans-serif;margin:2rem;}
+img{max-width:100%;height:auto;}
+.price{font-size:1.4rem;font-weight:bold;color:#4f46e5;}
+</style>
+</head><body>
+<h1 id="name">Loading…</h1>
+<img id="image" alt="">
+<p class="price" id="price"></p>
+<p id="description"></p>
 
-  fetch(`https://plusone-api.08e2207.workers.dev/product?id=${id}`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("product-name").textContent = data.name;
-      document.getElementById("product-price").textContent = data.price + "円";
-      document.getElementById("product-image").src = data.image_url;
-      document.getElementById("product-description").textContent = data.description;
-    });
+<script>
+const id = new URLSearchParams(location.search).get('id');
+if(!id){document.body.innerHTML='商品IDがありません';throw '';}
+
+fetch(`https://plusone-api.08e2207.workers.dev/product?id=${id}`)
+  .then(r=>r.json())
+  .then(d=>{
+    if(!d.name){throw 'notfound';}
+    document.getElementById('name').textContent = d.name;
+    document.getElementById('price').textContent = `${Number(d.price).toLocaleString()} 円`;
+    document.getElementById('image').src = d.image_url;
+    document.getElementById('description').textContent = d.description||'';
+  })
+  .catch(()=>{document.body.innerHTML='商品情報が見つかりません';});
 </script>
+</body></html>
