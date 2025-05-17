@@ -8,12 +8,13 @@
   body{font-family:sans-serif;margin:0 auto;max-width:800px;padding:1rem}
   h1{margin-bottom:1rem}
   table{width:100%;border-collapse:collapse}
-  th,td{padding:.5rem;border-bottom:1px solid #ddd;text-align:center}
+  th,td{padding:.5rem;border-bottom:1px solid #ddd;text-align:center;font-size:.9rem}
   td.name{text-align:left}
   .ctrl{display:flex;justify-content:center;align-items:center;gap:.3rem}
   .ctrl button{width:28px;height:28px;border:1px solid #aaa;background:#fafafa;border-radius:4px;cursor:pointer}
+  .del{background:#f87171;color:#fff;border:none}
   #total{font-size:1.25rem;font-weight:bold;text-align:right;margin-top:1rem}
-  #update{margin-top:1rem;padding:.6rem 1.2rem;border:none;border-radius:6px;background:#4f46e5;color:#fff;cursor:pointer}
+  #update{margin-top:1rem;padding:.6rem 1.4rem;border:none;border-radius:6px;background:#4f46e5;color:#fff;cursor:pointer}
 </style>
 </head>
 <body>
@@ -21,7 +22,7 @@
 
 <table id="cart-table">
   <thead>
-    <tr><th>商品</th><th>単価</th><th>数量</th><th>小計</th></tr>
+    <tr><th>商品</th><th>単価</th><th>数量</th><th>小計</th><th></th></tr>
   </thead>
   <tbody></tbody>
 </table>
@@ -30,38 +31,33 @@
 <button id="update">更新</button>
 
 <script>
-/* ===== 1. 必ず価格と商品名を登録してください ===== */
+/* ===== 1. 必ず価格と正式名称を入れてください ===== */
 const itemCatalog = {
-  "2-B0091GCPPM": { name: "2-B0091GCPPM", price: 4080 },
-  "2robo":        { name: "2robo",        price: 2580 },
-  "4529451001122":{ name: "4529451001122",price: 1480 },
-  "B002CJVLFA":   { name: "B002CJVLFA",   price: 8300 },
-  "B002CKF722":   { name: "B002CKF722",   price: 5130 },
-  "B0091GCPPM":   { name: "B0091GCPPM",   price: 2180 },
-  "B0091GDG50":   { name: "B0091GDG50",   price: 3580 },
-  "B00KG3AAI8":   { name: "B00KG3AAI8",   price: 1850 }
+  "2-B0091GCPPM": { name:"2-B0091GCPPM", price:0 },
+  "2robo":        { name:"2robo",        price:0 },
+  "4529451001122":{ name:"4529451001122",price:0 },
+  "B002CJVLFA":   { name:"B002CJVLFA",   price:0 },
+  "B002CKF722":   { name:"B002CKF722",   price:0 },
+  "B0091GCPPM":   { name:"B0091GCPPM",   price:0 },
+  "B0091GDG50":   { name:"B0091GDG50",   price:0 },
+  "B00KG3AAI8":   { name:"B00KG3AAI8",   price:0 }
 };
 /* =============================================== */
 
-const CART_KEY = 'my_cart';
-const cart     = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
-const tbody    = document.querySelector('#cart-table tbody');
-const totalEl  = document.getElementById('total');
+const CART_KEY='my_cart';
+const cart=JSON.parse(localStorage.getItem(CART_KEY)||'{}');
+const tbody=document.querySelector('#cart-table tbody');
+const totalEl=document.getElementById('total');
 
-/* ---------- テーブルに行を描画 ---------- */
+/* ---------- テーブル描画 ---------- */
 function render(){
-  tbody.innerHTML = '';
-  let grand = 0;
-
+  tbody.innerHTML='';
+  let grand=0;
   Object.entries(cart).forEach(([id,qty])=>{
-    if(!itemCatalog[id]) return;                 // カタログに無いものは無視
-    const {name, price} = itemCatalog[id];
-    const sub = price * qty;
-    grand += sub;
-
-    const tr = document.createElement('tr');
-    tr.dataset.id = id;
-    tr.innerHTML = `
+    if(!itemCatalog[id]) return;
+    const {name,price}=itemCatalog[id];const sub=price*qty;grand+=sub;
+    const tr=document.createElement('tr');tr.dataset.id=id;
+    tr.innerHTML=`
       <td class="name">${name}</td>
       <td>¥${price.toLocaleString()}</td>
       <td>
@@ -71,31 +67,40 @@ function render(){
           <button class="inc">＋</button>
         </div>
       </td>
-      <td class="sub">¥${sub.toLocaleString()}</td>`;
+      <td class="sub">¥${sub.toLocaleString()}</td>
+      <td><button class="del">✕</button></td>`;
     tbody.appendChild(tr);
   });
-
-  totalEl.textContent = `合計: ¥${grand.toLocaleString()}`;
+  totalEl.textContent='合計: ¥'+grand.toLocaleString();
 }
 render();
 
-/* ---------- 数量ボタン処理 ---------- */
-tbody.addEventListener('click', e=>{
-  if(!e.target.matches('.inc,.dec')) return;
-  const tr  = e.target.closest('tr');
-  const id  = tr.dataset.id;
-  let qty   = cart[id];
-  qty += e.target.matches('.inc') ? 1 : -1;
-  if(qty < 1) qty = 1;
-  cart[id] = qty;
-  tr.querySelector('.qty').textContent = qty;
-  const price = itemCatalog[id].price;
-  tr.querySelector('.sub').textContent = '¥' + (price*qty).toLocaleString();
+/* ---------- 数量増減 & 削除 ---------- */
+tbody.addEventListener('click',e=>{
+  const tr=e.target.closest('tr');if(!tr) return;
+  const id=tr.dataset.id;
+  if(e.target.matches('.inc,.dec')){
+    let qty=Number(tr.querySelector('.qty').textContent);
+    qty+=e.target.matches('.inc')?1:-1;
+    if(qty<1) qty=1;
+    tr.querySelector('.qty').textContent=qty;
+    tr.querySelector('.sub').textContent='¥'+(qty*itemCatalog[id].price).toLocaleString();
+  }else if(e.target.matches('.del')){
+    delete cart[id];
+    tr.remove();
+  }
 });
 
-/* ---------- 更新ボタンで localStorage 保存＆再計算 ---------- */
-document.getElementById('update').addEventListener('click', ()=>{
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+/* ---------- 更新ボタン ---------- */
+document.getElementById('update').addEventListener('click',()=>{
+  /* 1. tbody から最新数量を収集 */
+  [...tbody.querySelectorAll('tr')].forEach(tr=>{
+    const id=tr.dataset.id;
+    const qty=Number(tr.querySelector('.qty').textContent);
+    cart[id]=qty;
+  });
+  /* 2. 保存 & 合計再計算 */
+  localStorage.setItem(CART_KEY,JSON.stringify(cart));
   render();
   alert('カートを更新しました');
 });
