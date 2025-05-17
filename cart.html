@@ -14,35 +14,43 @@
   .ctrl button{width:28px;height:28px;border:1px solid #aaa;background:#fafafa;border-radius:4px;cursor:pointer}
   .del{background:#f87171;color:#fff;border:none}
   #total{font-size:1.25rem;font-weight:bold;text-align:right;margin-top:1rem}
-  #update{margin-top:1rem;padding:.6rem 1.4rem;border:none;border-radius:6px;background:#4f46e5;color:#fff;cursor:pointer}
+  .actions{display:flex;gap:.6rem;margin-top:1.2rem}
+  .actions button,.actions a{flex:1;padding:.6rem 1rem;border:none;border-radius:6px;text-align:center;text-decoration:none;cursor:pointer;font-weight:bold;color:#fff}
+  .home{background:#9ca3af}
+  #update{background:#4f46e5}
+  #checkout{background:#22c55e}
 </style>
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 <h1>カート</h1>
 
 <table id="cart-table">
-  <thead>
-    <tr><th>商品</th><th>単価</th><th>数量</th><th>小計</th><th></th></tr>
-  </thead>
+  <thead><tr><th>商品</th><th>単価</th><th>数量</th><th>小計</th><th></th></tr></thead>
   <tbody></tbody>
 </table>
 
 <div id="total">合計: ¥0</div>
-<button id="update">更新</button>
+
+<div class="actions">
+  <a href="index.html" class="home">HOME に戻る</a>
+  <button id="update">更新</button>
+  <button id="checkout">決済へ進む</button>
+</div>
 
 <script>
-/* ===== 1. 必ず価格と正式名称を入れてください ===== */
-const itemCatalog = {
-  "2-B0091GCPPM": { name:"2-B0091GCPPM", price:0 },
-  "2robo":        { name:"2robo",        price:0 },
-  "4529451001122":{ name:"4529451001122",price:0 },
-  "B002CJVLFA":   { name:"B002CJVLFA",   price:0 },
-  "B002CKF722":   { name:"B002CKF722",   price:0 },
-  "B0091GCPPM":   { name:"B0091GCPPM",   price:0 },
-  "B0091GDG50":   { name:"B0091GDG50",   price:0 },
-  "B00KG3AAI8":   { name:"B00KG3AAI8",   price:0 }
+/* ---------- 必ず商品ごとに正式価格を記入 ---------- */
+const itemCatalog={
+  "2-B0091GCPPM":{name:"2-B0091GCPPM",price:0},
+  "2robo":        {name:"2robo",price:0},
+  "4529451001122":{name:"4529451001122",price:0},
+  "B002CJVLFA":   {name:"B002CJVLFA",price:0},
+  "B002CKF722":   {name:"B002CKF722",price:0},
+  "B0091GCPPM":   {name:"B0091GCPPM",price:0},
+  "B0091GDG50":   {name:"B0091GDG50",price:0},
+  "B00KG3AAI8":   {name:"B00KG3AAI8",price:0}
 };
-/* =============================================== */
+/* ----------------------------------------------- */
 
 const CART_KEY='my_cart';
 const cart=JSON.parse(localStorage.getItem(CART_KEY)||'{}');
@@ -51,22 +59,19 @@ const totalEl=document.getElementById('total');
 
 /* ---------- テーブル描画 ---------- */
 function render(){
-  tbody.innerHTML='';
-  let grand=0;
+  tbody.innerHTML='';let grand=0;
   Object.entries(cart).forEach(([id,qty])=>{
     if(!itemCatalog[id]) return;
-    const {name,price}=itemCatalog[id];const sub=price*qty;grand+=sub;
+    const {name,price}=itemCatalog[id],sub=price*qty;grand+=sub;
     const tr=document.createElement('tr');tr.dataset.id=id;
     tr.innerHTML=`
       <td class="name">${name}</td>
       <td>¥${price.toLocaleString()}</td>
-      <td>
-        <div class="ctrl">
-          <button class="dec">－</button>
-          <span class="qty">${qty}</span>
-          <button class="inc">＋</button>
-        </div>
-      </td>
+      <td><div class="ctrl">
+            <button class="dec">－</button>
+            <span class="qty">${qty}</span>
+            <button class="inc">＋</button>
+          </div></td>
       <td class="sub">¥${sub.toLocaleString()}</td>
       <td><button class="del">✕</button></td>`;
     tbody.appendChild(tr);
@@ -77,32 +82,40 @@ render();
 
 /* ---------- 数量増減 & 削除 ---------- */
 tbody.addEventListener('click',e=>{
-  const tr=e.target.closest('tr');if(!tr) return;
+  const tr=e.target.closest('tr');if(!tr)return;
   const id=tr.dataset.id;
   if(e.target.matches('.inc,.dec')){
-    let qty=Number(tr.querySelector('.qty').textContent);
-    qty+=e.target.matches('.inc')?1:-1;
-    if(qty<1) qty=1;
+    let qty=+tr.querySelector('.qty').textContent;
+    qty=e.target.matches('.inc')?Math.min(qty+1,99):Math.max(qty-1,1);
     tr.querySelector('.qty').textContent=qty;
     tr.querySelector('.sub').textContent='¥'+(qty*itemCatalog[id].price).toLocaleString();
   }else if(e.target.matches('.del')){
-    delete cart[id];
-    tr.remove();
+    delete cart[id];tr.remove();
   }
 });
 
 /* ---------- 更新ボタン ---------- */
 document.getElementById('update').addEventListener('click',()=>{
-  /* 1. tbody から最新数量を収集 */
   [...tbody.querySelectorAll('tr')].forEach(tr=>{
-    const id=tr.dataset.id;
-    const qty=Number(tr.querySelector('.qty').textContent);
-    cart[id]=qty;
+    cart[tr.dataset.id]=+tr.querySelector('.qty').textContent;
   });
-  /* 2. 保存 & 合計再計算 */
   localStorage.setItem(CART_KEY,JSON.stringify(cart));
   render();
   alert('カートを更新しました');
+});
+
+/* ---------- 決済へ進む ---------- */
+const CHECKOUT_ENDPOINT='https://plusone-api.08e2207.workers.dev/checkout'; // 末尾Slashなし
+document.getElementById('checkout').addEventListener('click',async()=>{
+  if(!Object.keys(cart).length){alert('カートが空です');return;}
+  /* items = [{id,qty}] */
+  const items=Object.entries(cart).map(([id,qty])=>({id,qty}));
+  try{
+    const res=await fetch(CHECKOUT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})});
+    const {sessionId,error}=await res.json();
+    if(!res.ok||!sessionId) throw error||'session error';
+    await Stripe('').redirectToCheckout({sessionId});
+  }catch(err){console.error(err);alert('決済開始に失敗しました');}
 });
 </script>
 </body>
