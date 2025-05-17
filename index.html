@@ -1,51 +1,110 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>商品一覧</title>
-  <style>
-    :root{--gap:1rem;--card-w:220px}
-    body{font-family:sans-serif;margin:0 auto;max-width:1200px;padding:1rem}
-    h1{margin-bottom:1rem}
-    /* グリッド */
-    .grid{
-      display:grid;
-      gap:var(--gap);
-      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
-    }
-    /* カード */
-    .card{
-      border:1px solid #e0e0e0;border-radius:8px;padding:.8rem;
-      display:flex;flex-direction:column;text-decoration:none;color:inherit;
-      transition:box-shadow .15s;
-    }
-    .card:hover{box-shadow:0 4px 10px rgba(0,0,0,.12)}
-    .card img{width:100%;height:160px;object-fit:cover;border-radius:4px}
-    .card h3{font-size:1rem;margin:.6rem 0 .4rem}
-    .price{font-weight:bold}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>商品一覧</title>
+<style>
+  :root{--gap:1rem;--card-min:220px}
+
+  body{
+    font-family:sans-serif;
+    margin:0 auto;
+    max-width:1200px;
+    padding:1rem;
+  }
+  h1{margin-bottom:1rem}
+
+  /* ===== グリッド ===== */
+  .grid{
+    display:grid;
+    gap:var(--gap);
+    grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));
+  }
+  /* スマホは 2 列固定 */
+  @media (max-width:640px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* ===== カード ===== */
+  .card{
+    border:1px solid #e0e0e0;
+    border-radius:8px;
+    padding:.8rem;
+    display:flex;
+    flex-direction:column;
+    text-decoration:none;
+    color:inherit;
+    transition:box-shadow .15s;
+  }
+  .card:hover{box-shadow:0 4px 12px rgba(0,0,0,.12)}
+  .card img{
+    width:100%;
+    height:160px;            /* 高さは自動で切り替え */
+    object-fit:cover;
+    border-radius:4px;
+  }
+  @media (max-width:640px){
+    .card img{height:140px;} /* スマホでは少し低め */
+  }
+  .card h3{font-size:1rem;margin:.6rem 0 .4rem}
+  .price{font-weight:bold}
+</style>
 </head>
 <body>
-  <h1>商品一覧</h1>
-  <div class="grid">
-    <!-- ★ 商品カードを自動生成したい場合は、ここを Python でループ生成するか
-         手書きで増やしてください -->
-    <!-- 例：p001 -->
-    <a href="p001.html" class="card">
-      <img src="./images/p001.jpg" alt="">
-      <h3>カフェラテ 350ml</h3>
-      <div class="price">¥280</div>
-    </a>
+<h1>商品一覧</h1>
 
-    <!-- 例：p002 -->
-    <a href="p002.html" class="card">
-      <img src="./images/p002.jpg" alt="">
-      <h3>ドリップバッグ 5袋</h3>
-      <div class="price">¥980</div>
-    </a>
+<div class="grid">
+  <!-- ↓ 表示したい 8 商品分だけ配置 -->
+  <a href="2-B0091GCPPM.html" class="card">
+    <img src="./images/2-B0091GCPPM.jpg" alt="">
+    <h3>2-B0091GCPPM</h3>
+    <div class="price">¥ --</div>
+  </a>
 
-    <!-- ↓ 以降、同じ <a>…</a> ブロックを商品数ぶんコピペ -->
-  </div>
+  <a href="2robo.html" class="card">
+    <img src="./images/2robo.jpg" alt="">
+    <h3>2robo</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="4529451001122.html" class="card">
+    <img src="./images/4529451001122.jpg" alt="">
+    <h3>4529451001122</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="B002CJVLFA.html" class="card">
+    <img src="./images/B002CJVLFA.jpg" alt="">
+    <h3>B002CJVLFA</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="B002CKF722.html" class="card">
+    <img src="./images/B002CKF722.jpg" alt="">
+    <h3>B002CKF722</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="B0091GCPPM.html" class="card">
+    <img src="./images/B0091GCPPM.jpg" alt="">
+    <h3>B0091GCPPM</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="B0091GDG50.html" class="card">
+    <img src="./images/B0091GDG50.jpg" alt="">
+    <h3>B0091GDG50</h3>
+    <div class="price">¥ --</div>
+  </a>
+
+  <a href="B00KG3AAI8.html" class="card">
+    <img src="./images/B00KG3AAI8.jpg" alt="">
+    <h3>B00KG3AAI8</h3>
+    <div class="price">¥ --</div>
+  </a>
+</div>
+
 </body>
 </html>
+
