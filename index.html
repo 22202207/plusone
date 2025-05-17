@@ -1,53 +1,51 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ショッププラスワン 本店 | ホーム</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>商品一覧</title>
+  <style>
+    :root{--gap:1rem;--card-w:220px}
+    body{font-family:sans-serif;margin:0 auto;max-width:1200px;padding:1rem}
+    h1{margin-bottom:1rem}
+    /* グリッド */
+    .grid{
+      display:grid;
+      gap:var(--gap);
+      grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));
+    }
+    /* カード */
+    .card{
+      border:1px solid #e0e0e0;border-radius:8px;padding:.8rem;
+      display:flex;flex-direction:column;text-decoration:none;color:inherit;
+      transition:box-shadow .15s;
+    }
+    .card:hover{box-shadow:0 4px 10px rgba(0,0,0,.12)}
+    .card img{width:100%;height:160px;object-fit:cover;border-radius:4px}
+    .card h3{font-size:1rem;margin:.6rem 0 .4rem}
+    .price{font-weight:bold}
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
-  <header class="bg-white shadow-sm">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-2xl font-semibold text-indigo-600">ショッププラスワン 本店</h1>
-      <nav class="space-x-4 text-sm">
-        <p><a href="/legal.html">会社概要</a></p>
-        <a href="/" class="text-gray-600 hover:text-indigo-600">ホーム</a>
-        <a href="/order.html" class="text-gray-600 hover:text-indigo-600">カート</a>
-      </nav>
-    </div>
-  </header>
-  <main class="flex-1 container mx-auto p-4">
-    <h2 class="text-xl font-semibold mb-6">おすすめ商品</h2>
-    <div id="product-grid" class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
-  </main>
-  <footer class="text-center text-xs text-gray-500 py-4">&copy; 2025 MyShop</p>
-  <p><a href="/legal.html">特定商取引法に基づく表記</a></p>
-  </footer>
-  <script>
-    const products = [
-      { code: 'A001', name: '無添加石鹸', price: 300, img: 'https://via.placeholder.com/300x300?text=A001' },
-      { code: 'A002', name: 'しっとり化粧水', price: 1200, img: 'https://via.placeholder.com/300x300?text=A002' },
-      { code: 'A003', name: 'オーガニックシャンプー', price: 890, img: 'https://via.placeholder.com/300x300?text=A003' },
-      { code: 'A004', name: 'ハンドクリーム', price: 650, img: 'https://via.placeholder.com/300x300?text=A004' },
-    ];
-    const grid = document.getElementById('product-grid');
-    products.forEach(p => {
-      const link = \`/order.html?code=\${encodeURIComponent(p.code)}&name=\${encodeURIComponent(p.name)}&price=\${p.price}&img=\${encodeURIComponent(p.img)}\`;
-      const card = document.createElement('a');
-      card.href = link;
-      card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md transition block';
-      card.innerHTML = \`
-        <img src="\${p.img}" alt="\${p.name}" class="w-full h-48 object-cover rounded-t-xl" />
-        <div class="p-4">
-          <p class="font-medium text-gray-800">\${p.name}</p>
-          <p class="text-indigo-600 mt-1 font-semibold">¥\${p.price.toLocaleString()}</p>
-        </div>\`;
-      grid.appendChild(card);
-    });
-  </script>
+<body>
+  <h1>商品一覧</h1>
+  <div class="grid">
+    <!-- ★ 商品カードを自動生成したい場合は、ここを Python でループ生成するか
+         手書きで増やしてください -->
+    <!-- 例：p001 -->
+    <a href="p001.html" class="card">
+      <img src="./images/p001.jpg" alt="">
+      <h3>カフェラテ 350ml</h3>
+      <div class="price">¥280</div>
+    </a>
+
+    <!-- 例：p002 -->
+    <a href="p002.html" class="card">
+      <img src="./images/p002.jpg" alt="">
+      <h3>ドリップバッグ 5袋</h3>
+      <div class="price">¥980</div>
+    </a>
+
+    <!-- ↓ 以降、同じ <a>…</a> ブロックを商品数ぶんコピペ -->
+  </div>
 </body>
 </html>
