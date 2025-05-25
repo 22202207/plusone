@@ -114,7 +114,7 @@ document.getElementById('checkout').addEventListener('click',async()=>{
     const res=await fetch(CHECKOUT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})});
     const {sessionId,error}=await res.json();
     if(!res.ok||!sessionId) throw error||'session error';
-    await Stripe('').redirectToCheckout({sessionId});
+    await Stripe('pk_test_51RFssADGl3CKnBpN9WGFZX1W9w0IFVwOfQkQKMYLRwMUrLMofvU1zahJnI7JnS4Dd4JeI74EmbFarQMizygnBDBj00Mux368ty').redirectToCheckout({sessionId});
   }catch(err){console.error(err);alert('決済開始に失敗しました');}
 });
 </script>
